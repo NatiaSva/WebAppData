@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="Style2.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/lodash"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+</head>
+
+
+<body>
+    <div class="container">
+        <h2 style="color:blueviolet" class="text-center mt-4 mb-4">Static analysis from Excel file</h2>
+        <!--//<div style="color:white; background-color:blueviolet" class="card-header"><b>Select Excel File</b></div>-->
+        <input type="file" id="excel_file" />
+
+        <div class="row">
+            <div class="my-4 col-5"><canvas id="myChart" style="width:100%;max-width:300px"></canvas></div>
+            <div class="my-4 col-5"><canvas id="myChart2" style="width:100%;max-width:300px"></canvas></div>
+        </div>
+
+        <div id="excel_data" class="mt-5"></div>
+
+    </div>
+</body>
+</html>
+
+
+
+<script>
+
+    const excel_file = document.getElementById('excel_file');
+    let excel_data = document.getElementById('excel_data');
+    let sheet_data;
+    let count = 0;
+    let fail = 0;
+    let pass = 0;
+    let sfailePer = 0;
+
+  
+
+    excel_file.addEventListener('change', (event) => {
+
+        var reader = new FileReader();
+
+        reader.readAsArrayBuffer(event.target.files[0]);
+
+        reader.onload = function (event) {
+
+            var data = new Uint8Array(reader.result);
+
+            var work_book = XLSX.read(data, { type: 'array' });
+
+            var sheet_name = work_book.SheetNames;
+
+            sheet_data = XLSX.utils.sheet_to_json(work_book.Sheets[sheet_name[0]], { header: 1 });
+
+            if (sheet_data.length > 0) {
+
+                renderTable(sheet_data, excel_data);
+            }
+        }
+    });
+
+
+
+    function renderTable(sheet_data, excel_data) {
+        removeAllChildNodes(excel_data);
+        let tbl = document.createElement('table');
+        const set = new Set();
+        let tr = document.createElement('tr');
+        let th = document.createElement('th');
+        th.innerHTML = sheet_data[0][2];
+        tr.appendChild(th);
+        tbl.appendChild(tr);
+
+        let th1 = document.createElement('th');
+        th1.innerHTML = sheet_data[0][3];
+        tr.appendChild(th1);
+        tbl.appendChild(tr);
+
+        for (var row = 1; row < sheet_data.length; row++) {
+            let tr = document.createElement('tr');
+            let tdSerialNumber = document.createElement('td');
+            let tdStatus = document.createElement('td');
+            let serialNumber = sheet_data[row][2];
+            let status = sheet_data[row][3];
+            if (!set.has(serialNumber)) {
+                tr.onclick = () => {
+                    onRowClick(serialNumber);
+                };
+                tdSerialNumber.innerHTML = serialNumber;
+                tdStatus.innerHTML = status;
+                set.add(serialNumber);
+                tr.appendChild(tdSerialNumber);
+                tr.appendChild(tdStatus);
+                tbl.appendChild(tr);
+                if (status == "Failed") {
+                    fail++;
+                } else {
+                    pass++;
+                }
+                count++;
+                
+            }
+        }
+        excel_data.appendChild(tbl);
+        sfailePer = (100 * fail) / count;
+        staticAnalysis(fail, pass, sfailePer);
+    }
+
+    function staticAnalysis(fail, pass, sfailePer) {
+        var xValues = ["FAIL " + fail, "PASS " + pass];
+        var yValues = [fail, pass];
+        var barColors = [
+            "#b91d47",
+            "#2b5797"
+        ];
+
+        new Chart("myChart", {
+            type: "doughnut",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "Number of fail /pass"
+                }
+            }
+        });
+        var xValues2 = ["Fail " + sfailePer + " %"];
+        var yValues2 = [sfailePer];
+        var barColors = [
+            "#b91d47"
+        ];
+
+        new Chart("myChart2", {
+            type: "doughnut",
+            data: {
+                labels: xValues2,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues2
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "Fail percent"
+                }
+            }
+        });
+
+    }
+
+    function onRowClick(serialNumber)
+    {
+        removeAllChildNodes(excel_data);
+        let tbl = document.createElement('table');
+
+        for (var row = 0; row < sheet_data.length; row++) {
+            let tr = document.createElement('tr');
+
+            for (var cell = 0; cell < sheet_data[row].length; cell++) {
+                if (row == 0) {
+
+                    let th = document.createElement('th');
+                    th.innerHTML = sheet_data[row][cell];
+                    tr.appendChild(th);
+                    tbl.appendChild(tr);
+
+                }
+                if (sheet_data[row][2] != serialNumber) {
+                    continue;
+                } else {
+                    let td = document.createElement('td');
+                    td.innerHTML = sheet_data[row][cell];
+                    tr.appendChild(td);
+                    tbl.appendChild(tr);
+                }
+
+            }
+          
+          }
+           excel_data.appendChild(tbl);
+
+    }
+
+
+    function removeAllChildNodes(node) {
+        while (node.firstChild)
+            node.removeChild(node.firstChild);
+    }
+
+
+</script>
+
