@@ -1,0 +1,26 @@
+﻿table, th, tr, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align:center;
+}
+
+th {
+    padding: 10px;
+    background-color: blueviolet;
+    color: white;
+}
+
+tr{
+    cursor: pointer;
+}
+
+tr:nth-child(2n+1) {
+    background-color:white;
+}
+tr:nth-child(2n) {
+    background-color: white;
+}
+
+tr:hover {
+    background-color: rgb(141, 69, 223);
+}
