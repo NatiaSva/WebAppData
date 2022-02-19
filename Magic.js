@@ -14,11 +14,14 @@ if (window.localStorage) {
     let user = localStorage.getItem("user");
     let pass = localStorage.getItem("pass");
 
+
     let message = document.getElementById("textMessage");
     submit.addEventListener("click", (e) => {
         e.preventDefault();
         message.hidden = false;
         if (user == txtuser.value && pass == txtpass.value) {
+            localStorage.setItem("user1",txtuser.value);
+            localStorage.setItem("pass1",txtpass.value);
             message.innerHTML = "Login successfully...";
             window.location.href = "data.html";
         }
