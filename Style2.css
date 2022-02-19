@@ -24,3 +24,7 @@ tr:nth-child(2n) {
 tr:hover {
     background-color: rgb(141, 69, 223);
 }
+
+#linkOut {
+    color: #007bff;
+}
