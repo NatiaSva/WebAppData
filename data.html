@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8" />
     <title></title>
     <link rel="stylesheet" href="Style2.css">
@@ -24,7 +25,7 @@
                 Logout
             </a>
         </div>
-        <h2 style="color:blueviolet" class="text-center mt-4 mb-4">Static analysis from Excel file</h2>
+        <h2 style="color:blueviolet" class="text-center mt-4 mb-4">Staticstical analysis from Excel file</h2>
         
         <div class="row text-center" id="dataCharts" >
             <div class="my-4 col"><canvas id="myChart" ></canvas></div>
@@ -62,7 +63,9 @@
     });
   
     window.onload = async (e) =>{
-       await render();
+   
+        await render();
+        
     }
    
   async function render(){
